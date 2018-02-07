@@ -1,5 +1,7 @@
 # urlScan2Hive
 
+Submits URLs to urlscan.io API by specifying `-u` option. Creates case in TheHive, then adds observables for tracking and intel sharing. 
+
 # Usage
 ```
 $ ./urlScan.py -h
