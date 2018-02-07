@@ -1,0 +1,171 @@
+#!/usr/bin/env python
+
+import argparse
+import json
+import getpass
+import requests
+import logging
+import time
+import httplib as http_client
+from thehive4py.api import TheHiveApi
+from thehive4py.models import Case, CaseObservable
+
+__author__ = "Wayland Morgan"
+__date__ = "20180125"
+__version__ = "1.1"
+__description__ = "Submits a suspect URL for analysis and adds resulting obervables to TheHive"
+
+def submit_to_urlscan(surl):
+    url = 'https://urlscan.io/api/v1/scan/'
+    headers = {'Content-Type': 'application/json', 'API-Key': 'YOUR-API-KEY'}
+    data = """{\"url\": \"%s\", \"public\": \"on\"}""" % (surl)
+    response = requests.post(url, data=data, headers=headers)
+    response.raise_for_status()
+    return response
+    
+def debug_api():
+    http_client.HTTPConnection.debuglevel = 1
+    logging.basicConfig()
+    logging.getLogger().setLevel(logging.DEBUG)
+    requests_log = logging.getLogger("requests.packages.urllib3")
+    requests_log.setLevel(logging.DEBUG)
+    requests_log.propagate = True
+    
+def main(): 
+    surl = args.url
+    urls = set()
+    try:
+        response = submit_to_urlscan(surl)
+    except requests.exceptions.HTTPError:
+        print 'ko: {}/{}'.format(response.status_code, response.text)
+    receipt = json.loads(response.content)
+    uuid = receipt['uuid']
+    print '\n[*] ' + receipt['message']
+    try:
+        time.sleep(15)
+        response = requests.get('https://urlscan.io/api/v1/result/{}/'.format(uuid))
+    except requests.exceptions.HTTPError:
+        print 'ko: {}/{}'.format(response.status_code, response.text)
+    results = json.loads(response.content)
+    
+    # Parse JSON response and assign variables
+    screenshot = '![{0}](https://urlscan.io/thumbs/{1}.png)'.format(surl, uuid)
+    ipaddrs= results['lists']['ips']
+    domains = results['lists']['domains']
+    
+    try:
+        certificates = results['lists']['certificates']
+    except KeyError:
+        pass    
+    try: 
+        threatDict = results['meta']['processors']['gsb']['data']['matches'][0]
+        safebrowse = threatDict.get("threatType").title().lower()
+    except KeyError:
+        safebrowse = "nullSafeBrowseTag"
+    
+    for i in results['data']['requests']:
+        for k, v in i.iteritems():
+            if k == "request":
+                urls.add(v.get("documentURL"))
+
+    print '[*] Locating case template for suspected phishing'
+    case = Case(title='Email Campaign', description='N/A', tlp=2, template='Email - Suspect Phishing', tags=['email'])
+    
+    # Create the case
+    try:
+        print '[*] Creating case from template'
+        response = thehive.create_case(case)
+        id = response.json()['id']
+    except requests.exceptions.HTTPError:
+        print 'ko: {}/{}'.format(response.status_code, response.text)
+
+    # Add captured values as observables
+    '\n'.join(urls)
+    for i in urls:
+        urlv = CaseObservable(dataType='url',
+                              data='{0}'.format(i),
+                              tlp=1,
+                              ioc=False,
+                              tags=['thehive4py', 'url', 'phishing'],
+                              message='from urlscan.io'
+                              )
+        urlv.tags.append(safebrowse)
+        response = thehive.create_case_observable(id, urlv)
+        if response.status_code == 201:
+              print '[*] Added URL observable for ' + i
+        else:
+            print '[!] ko: {}/{}\n'.format(response.status_code, response.text)
+
+    for i in ipaddrs:
+        ipv = CaseObservable(dataType='ip',
+                                data='{0}'.format(i),
+                                tlp=1,
+                                ioc=False,
+                                tags=['thehive4py', 'ip', 'phishing'],
+                                message='from urlscan.io'
+                                )
+        ipv.tags.append(safebrowse)
+        response = thehive.create_case_observable(id, ipv)
+        if response.status_code == 201:
+            print '[*] Added IP observable for ' + i
+        else:
+            print '[!] ko: {}/{}\n'.format(response.status_code, response.text)
+
+    for i in domains:
+        domainv = CaseObservable(dataType='domain',
+                                data='{0}'.format(i),
+                                tlp=1,
+                                ioc=False,
+                                tags=['thehive4py', 'domain', 'phishing'],
+                                message='from urlscan.io'
+                                )
+        domainv.tags.append(safebrowse)
+        response = thehive.create_case_observable(id, domainv)
+        if response.status_code == 201:
+            print '[*] Added domain observable for ' + i
+        else:
+            print '[!] ko: {}/{}\n'.format(response.status_code, response.text)
+    
+    case.description = '[Scan Summary](https://urlscan.io/results/{0}/#summary)\n\n'.format(uuid)
+    case.description += screenshot + "\n\n"
+    print '[*] Updated case with link to scan summary'
+    print '[*] Updated case with screenshot found by following suspect URL'
+    
+    try:
+        if certificates is not None:
+            for k, v in certificates[0].iteritems():
+                if k == "validFrom": 
+                    case.description += "Valid from: " + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(v)) + "\n"
+                if k == "validTo":
+                    case.description += "Valid to: " + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(v)) + "\n"
+                if k == "issuer":
+                    case.description += "Issuer: " + v + "\n```"
+                if k == "subjectName":
+                    case.description += "```\nSubject Name: " + v + "\n"
+                if k == "sanList":
+                    s = ', '.join(v)
+                    case.description += "San list: " + s + "\n"
+        print '[*] Added certificate information to case'
+    except IndexError:
+        pass
+ 
+    case.id = id
+    thehive.update_case(case)
+    print '\nCase: ' + 'https://127.0.0.1:9443/index.html#/case/{0}/details'.format(id)
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-d", "--debug", action="store_true", help="Debug API call")
+    parser.add_argument("-u", "--url", required=True, help="Suspect URL")
+    args = parser.parse_args()
+    
+    if args.debug:
+        debug_api()
+        
+    print '{:=^28}'.format('')
+    print '{} {}'.format('urlScan IOC generator, ', __version__)
+    print '{:=^28}'.format('')
+    user = raw_input("Username: ")
+    password = getpass.getpass()
+    thehive = TheHiveApi('https://127.0.0.1:9443', user, password, {'http': '', 'https': ''})
+    main()
