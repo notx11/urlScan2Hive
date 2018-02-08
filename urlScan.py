@@ -144,7 +144,7 @@ def main():
                 case.description += "San list: " + s + "\n"
             if k == "issuer":
                 case.description += "Issuer: " + v + "\n```"
-    print '[*] Added certificate information to case'
+        print '[*] Added certificate information to case'
  
     case.id = id
     thehive.update_case(case)
