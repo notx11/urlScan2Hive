@@ -131,23 +131,20 @@ def main():
     print '[*] Updated case with link to scan summary'
     print '[*] Updated case with screenshot found by following suspect URL'
     
-    try:
-        if certificates is not None:
-            for k, v in certificates[0].iteritems():
-                if k == "validFrom": 
-                    case.description += "Valid from: " + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(v)) + "\n"
-                if k == "validTo":
-                    case.description += "Valid to: " + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(v)) + "\n"
-                if k == "issuer":
-                    case.description += "Issuer: " + v + "\n```"
-                if k == "subjectName":
-                    case.description += "```\nSubject Name: " + v + "\n"
-                if k == "sanList":
-                    s = ', '.join(v)
-                    case.description += "San list: " + s + "\n"
-        print '[*] Added certificate information to case'
-    except IndexError:
-        pass
+    if certificates:
+        for k, v in certificates[0].iteritems():
+            if k == "subjectName":
+                case.description += "```\nSubject Name: " + v + "\n"
+            if k == "validFrom": 
+                case.description += "Valid from: " + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(v)) + "\n"
+            if k == "validTo":
+                case.description += "Valid to: " + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(v)) + "\n"
+            if k == "sanList":
+                s = ', '.join(v)
+                case.description += "San list: " + s + "\n"
+            if k == "issuer":
+                case.description += "Issuer: " + v + "\n```"
+    print '[*] Added certificate information to case'
  
     case.id = id
     thehive.update_case(case)
