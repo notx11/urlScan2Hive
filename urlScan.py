@@ -83,7 +83,7 @@ def main():
     '\n'.join(urls)
     for i in urls:
         urlv = CaseObservable(dataType='url',
-                              data='{0}'.format(i),
+                              data=i,
                               tlp=1,
                               ioc=False,
                               tags=['thehive4py', 'url', 'phishing'],
@@ -98,7 +98,7 @@ def main():
 
     for i in ipaddrs:
         ipv = CaseObservable(dataType='ip',
-                                data='{0}'.format(i),
+                                data=i,
                                 tlp=1,
                                 ioc=False,
                                 tags=['thehive4py', 'ip', 'phishing'],
@@ -113,7 +113,7 @@ def main():
 
     for i in domains:
         domainv = CaseObservable(dataType='domain',
-                                data='{0}'.format(i),
+                                data=i,
                                 tlp=1,
                                 ioc=False,
                                 tags=['thehive4py', 'domain', 'phishing'],
