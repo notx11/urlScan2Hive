@@ -13,7 +13,7 @@ from thehive4py.models import Case, CaseObservable
 __author__ = "Wayland Morgan"
 __date__ = "20180125"
 __version__ = "1.1"
-__description__ = "Submits a suspect URL for analysis and adds resulting obervables to TheHive"
+__description__ = "Submits a suspect URL for analysis and adds resulting observables to TheHive"
 
 def submit_to_urlscan(surl):
     url = 'https://urlscan.io/api/v1/scan/'
