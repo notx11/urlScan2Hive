@@ -33,7 +33,6 @@ def debug_api():
     
 def main(): 
     surl = args.url
-    urls = set()
     
     # Submit URL for processing
     response = submit_to_urlscan(surl)
@@ -60,7 +59,8 @@ def main():
         safebrowse = threatDict.get("threatType").title().lower()
     except KeyError:
         safebrowse = "nullSafeBrowseTag"
-    
+        
+    urls = set()
     for i in results['data']['requests']:
         for k, v in i.iteritems():
             if k == "request":
@@ -71,13 +71,10 @@ def main():
     case = Case(title='Email Campaign', description='N/A', tlp=2, template='Email - Suspect Phishing', tags=['email'])
     
     # Create the case
-    try:
-        print '[*] Creating case from template'
-        response = thehive.create_case(case)
-        id = response.json()['id']
-    except requests.exceptions.HTTPError:
-        print 'ko: {}/{}'.format(response.status_code, response.text)
-
+    print '[*] Creating case from template'
+    response = thehive.create_case(case)
+    id = response.json()['id']
+    
     # Add captured values as observables
     '\n'.join(urls)
     for i in urls:
@@ -126,8 +123,8 @@ def main():
             print '[!] ko: {}/{}\n'.format(response.status_code, response.text)
     
     case.description = '[Scan Summary](https://urlscan.io/results/{0}/#summary)\n\n'.format(uuid)
-    case.description += screenshot + "\n\n"
     print '[*] Updated case with link to scan summary'
+    case.description += screenshot + "\n\n"
     print '[*] Updated case with screenshot found by following suspect URL'
     
     if certificates:
