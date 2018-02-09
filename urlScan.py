@@ -32,8 +32,6 @@ def debug_api():
     requests_log.propagate = True
     
 def main(): 
-    surl = args.url
-    
     # Submit URL for processing
     response = submit_to_urlscan(surl)
     receipt = json.loads(response.content)
@@ -54,6 +52,7 @@ def main():
         certificates = results['lists']['certificates']
     except KeyError:
         pass    
+
     try: 
         threatDict = results['meta']['processors']['gsb']['data']['matches'][0]
         safebrowse = threatDict.get("threatType").title().lower()
@@ -151,7 +150,8 @@ if __name__ == '__main__':
     parser.add_argument("-d", "--debug", action="store_true", help="Debug API call")
     parser.add_argument("-u", "--url", required=True, help="Suspect URL")
     args = parser.parse_args()
-    
+    surl = args.url
+ 
     if args.debug:
         debug_api()
         
