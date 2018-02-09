@@ -34,21 +34,19 @@ def debug_api():
 def main(): 
     surl = args.url
     urls = set()
-    try:
-        response = submit_to_urlscan(surl)
-    except requests.exceptions.HTTPError:
-        print 'ko: {}/{}'.format(response.status_code, response.text)
+    
+    # Submit URL for processing
+    response = submit_to_urlscan(surl)
     receipt = json.loads(response.content)
     uuid = receipt['uuid']
     print '\n[*] ' + receipt['message']
-    try:
-        time.sleep(15)
-        response = requests.get('https://urlscan.io/api/v1/result/{}/'.format(uuid))
-    except requests.exceptions.HTTPError:
-        print 'ko: {}/{}'.format(response.status_code, response.text)
+    
+    # Wait for scan to finish and retrieve results
+    time.sleep(15)
+    response = requests.get('https://urlscan.io/api/v1/result/{}/'.format(uuid))
     results = json.loads(response.content)
     
-    # Parse JSON response and assign variables
+    # Parse response and assign variables
     screenshot = '![{0}](https://urlscan.io/thumbs/{1}.png)'.format(surl, uuid)
     ipaddrs= results['lists']['ips']
     domains = results['lists']['domains']
@@ -67,7 +65,8 @@ def main():
         for k, v in i.iteritems():
             if k == "request":
                 urls.add(v.get("documentURL"))
-
+                
+    # Locate template
     print '[*] Locating case template for suspected phishing'
     case = Case(title='Email Campaign', description='N/A', tlp=2, template='Email - Suspect Phishing', tags=['email'])
     
