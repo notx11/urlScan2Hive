@@ -87,7 +87,7 @@ def main():
         urlv.tags.append(safebrowse)
         response = thehive.create_case_observable(id, urlv)
         if response.status_code == 201:
-              print '[*] Added URL observable for ' + i
+            print '[*] Added URL observable for ' + i
         else:
             print '[!] ko: {}/{}\n'.format(response.status_code, response.text)
 
