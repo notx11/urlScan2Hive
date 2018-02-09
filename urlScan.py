@@ -40,7 +40,7 @@ def main():
     uuid = receipt['uuid']
     print '\n[*] ' + receipt['message']
     
-    # Wait for scan to finish and retrieve results
+    # Wait for scan to finish then retrieve results
     time.sleep(15)
     response = requests.get('https://urlscan.io/api/v1/result/{}/'.format(uuid))
     results = json.loads(response.content)
