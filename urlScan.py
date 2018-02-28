@@ -12,7 +12,7 @@ from thehive4py.models import Case, CaseObservable
 
 __author__ = "Wayland Morgan"
 __date__ = "20180125"
-__version__ = "1.1"
+__version__ = "1.2"
 __description__ = "Submits a suspect URL for analysis and adds resulting observables to TheHive"
 
 def submit_to_urlscan(surl):
@@ -142,7 +142,7 @@ def main():
         print '[*] Added certificate information to case'
  
     case.id = id
-    thehive.update_case(case)
+    thehive.update_case(case, ['description'])
     print '\nCase: ' + 'https://127.0.0.1:9443/index.html#/case/{0}/details'.format(id)
 
 if __name__ == '__main__':
