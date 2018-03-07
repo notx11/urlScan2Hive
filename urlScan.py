@@ -91,21 +91,6 @@ def main():
         else:
             print '[!] ko: {}/{}\n'.format(response.status_code, response.text)
 
-    for i in ipaddrs:
-        ipv = CaseObservable(dataType='ip',
-                                data=i,
-                                tlp=1,
-                                ioc=False,
-                                tags=['thehive4py', 'ip', 'phishing'],
-                                message='from urlscan.io'
-                                )
-        ipv.tags.append(safebrowse)
-        response = thehive.create_case_observable(id, ipv)
-        if response.status_code == 201:
-            print '[*] Added IP observable for ' + i
-        else:
-            print '[!] ko: {}/{}\n'.format(response.status_code, response.text)
-
     for i in domains:
         domainv = CaseObservable(dataType='domain',
                                 data=i,
@@ -118,7 +103,7 @@ def main():
         response = thehive.create_case_observable(id, domainv)
         if response.status_code == 201:
             print '[*] Added domain observable for ' + i
-        else:
+        els
             print '[!] ko: {}/{}\n'.format(response.status_code, response.text)
     
     case.description = '[Scan Summary](https://urlscan.io/results/{0}/#summary)\n\n'.format(uuid)
