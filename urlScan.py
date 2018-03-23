@@ -45,7 +45,7 @@ def main():
     
     # Parse response and assign variables
     screenshot = '![{0}](https://urlscan.io/thumbs/{1}.png)'.format(surl, uuid)
-    ipaddrs= results['lists']['ips']
+    ipaddrs = results['lists']['ips']
     domains = results['lists']['domains']
     
     try:
