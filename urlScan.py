@@ -103,7 +103,7 @@ def main():
         response = thehive.create_case_observable(id, domainv)
         if response.status_code == 201:
             print '[*] Added domain observable for ' + i
-        els
+        else:
             print '[!] ko: {}/{}\n'.format(response.status_code, response.text)
     
     case.description = '[Scan Summary](https://urlscan.io/results/{0}/#summary)\n\n'.format(uuid)
