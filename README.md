@@ -5,11 +5,10 @@ Submits URLs to urlscan.io API by specifying `-u` option. Creates case in TheHiv
 # Usage
 ```
 $ ./urlScan.py -h
-usage: urlScan.py [-h] [-d] -u URL
+usage: urlScan.py [-h] -u URL
 
 optional arguments:
   -h, --help         show this help message and exit
-  -d, --debug        Debug API call
   -u URL, --url URL  Suspect URL
   ```
 
