@@ -4,6 +4,7 @@ import argparse
 import json
 import getpass
 import requests
+import logging
 import time
 from thehive4py.api import TheHiveApi
 from thehive4py.models import Case, CaseObservable
