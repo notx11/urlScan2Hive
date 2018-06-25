@@ -122,13 +122,9 @@ def main():
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument("-d", "--debug", action="store_true", help="Debug API call")
     parser.add_argument("-u", "--url", required=True, help="Suspect URL")
     args = parser.parse_args()
     surl = args.url
- 
-    if args.debug:
-        debug_api()
         
     print '{:=^28}'.format('')
     print '{} {}'.format('urlScan IOC generator, ', __version__)
