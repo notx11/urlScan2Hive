@@ -4,7 +4,6 @@ import argparse
 import json
 import getpass
 import requests
-import logging
 import time
 import httplib as http_client
 from thehive4py.api import TheHiveApi
