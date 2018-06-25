@@ -5,7 +5,6 @@ import json
 import getpass
 import requests
 import time
-import httplib as http_client
 from thehive4py.api import TheHiveApi
 from thehive4py.models import Case, CaseObservable
 
@@ -21,14 +20,6 @@ def submit_to_urlscan(surl):
     response = requests.post(url, data=data, headers=headers)
     response.raise_for_status()
     return response
-    
-def debug_api():
-    http_client.HTTPConnection.debuglevel = 1
-    logging.basicConfig()
-    logging.getLogger().setLevel(logging.DEBUG)
-    requests_log = logging.getLogger("requests.packages.urllib3")
-    requests_log.setLevel(logging.DEBUG)
-    requests_log.propagate = True
     
 def main(): 
     # Submit URL for processing
