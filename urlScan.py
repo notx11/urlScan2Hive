@@ -54,7 +54,7 @@ def main():
 
     try: 
         threatDict = results['meta']['processors']['gsb']['data']['matches'][0]
-        safebrowse = threatDict.get("threatType").title().lower()
+        safebrowse = threatDict.get("threatType").lower()
     except KeyError:
         safebrowse = "nullSafeBrowseTag"
         
