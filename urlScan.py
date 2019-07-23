@@ -20,6 +20,15 @@ def submit_to_urlscan(surl):
     return response
     
 def main(): 
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-u", "--url", required=True, help="Suspect URL")
+    args = parser.parse_args()
+    surl = args.url
+        
+    user = input("Username: ")
+    password = getpass.getpass()
+    thehive = TheHiveApi('https://127.0.0.1:9443', user, password, {'http': '', 'https': ''})
+    
     # Submit URL for processing
     response = submit_to_urlscan(surl)
     receipt = json.loads(response.content)
@@ -109,12 +118,4 @@ def main():
     print('\nCase: ' + 'https://127.0.0.1:9443/index.html#/case/{0}/details'.format(id))
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-u", "--url", required=True, help="Suspect URL")
-    args = parser.parse_args()
-    surl = args.url
-        
-    user = input("Username: ")
-    password = getpass.getpass()
-    thehive = TheHiveApi('https://127.0.0.1:9443', user, password, {'http': '', 'https': ''})
     main()
