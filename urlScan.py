@@ -117,7 +117,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     surl = args.url
         
-    user = raw_input("Username: ")
+    user = input("Username: ")
     password = getpass.getpass()
     thehive = TheHiveApi('https://127.0.0.1:9443', user, password, {'http': '', 'https': ''})
     main()
