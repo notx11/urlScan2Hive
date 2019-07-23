@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import argparse
 import json
@@ -27,7 +27,6 @@ def main():
     response = submit_to_urlscan(surl)
     receipt = json.loads(response.content)
     uuid = receipt['uuid']
-    print '\n[*] ' + receipt['message']
     
     # Wait for scan to finish then retrieve results
     time.sleep(15)
@@ -57,11 +56,9 @@ def main():
                 urls.add(v.get("documentURL"))
                 
     # Locate template
-    print '[*] Locating case template for suspected phishing'
     case = Case(title='Email Campaign', description='N/A', tlp=2, template='Email - Suspect Phishing', tags=['email'])
     
     # Create the case
-    print '[*] Creating case from template'
     response = thehive.create_case(case)
     id = response.json()['id']
     
@@ -79,8 +76,6 @@ def main():
         response = thehive.create_case_observable(id, urlv)
         if response.status_code == 201:
             print '[*] Added URL observable for ' + i
-        else:
-            print '[!] ko: {}/{}\n'.format(response.status_code, response.text)
 
     for i in domains:
         domainv = CaseObservable(dataType='domain',
@@ -94,13 +89,9 @@ def main():
         response = thehive.create_case_observable(id, domainv)
         if response.status_code == 201:
             print '[*] Added domain observable for ' + i
-        else:
-            print '[!] ko: {}/{}\n'.format(response.status_code, response.text)
     
     case.description = '[Scan Summary](https://urlscan.io/results/{0}/#summary)\n\n'.format(uuid)
-    print '[*] Updated case with link to scan summary'
     case.description += screenshot + "\n\n"
-    print '[*] Updated case with screenshot found by following suspect URL'
     
     if certificates:
         for k, v in certificates[0].iteritems():
@@ -115,11 +106,10 @@ def main():
                 case.description += "San list: " + s + "\n"
             if k == "issuer":
                 case.description += "Issuer: " + v + "\n```"
-        print '[*] Added certificate information to case'
  
     case.id = id
     thehive.update_case(case, ['description'])
-    print '\nCase: ' + 'https://127.0.0.1:9443/index.html#/case/{0}/details'.format(id)
+    print('\nCase: ' + 'https://127.0.0.1:9443/index.html#/case/{0}/details'.format(id))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -127,9 +117,6 @@ if __name__ == '__main__':
     args = parser.parse_args()
     surl = args.url
         
-    print '{:=^28}'.format('')
-    print '{} {}'.format('urlScan IOC generator, ', __version__)
-    print '{:=^28}'.format('')
     user = raw_input("Username: ")
     password = getpass.getpass()
     thehive = TheHiveApi('https://127.0.0.1:9443', user, password, {'http': '', 'https': ''})
