@@ -4,14 +4,11 @@ import argparse
 import json
 import getpass
 import requests
-import logging
 import time
 from thehive4py.api import TheHiveApi
 from thehive4py.models import Case, CaseObservable
 
 __author__ = "Wayland Morgan"
-__date__ = "20180125"
-__version__ = "1.2"
 __description__ = "Submits a suspect URL for analysis and adds resulting observables to TheHive"
 
 def submit_to_urlscan(surl):
